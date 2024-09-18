@@ -1,0 +1,62 @@
+---
+- name: AuditD - Install auditd Package [Debian/Ubuntu]
+  apt:
+    name: "{{ auditd_packages_debian }}"
+    state: latest
+    update_cache: yes
+    cache_valid_time: 30
+  register: apt_result
+  until: apt_result is success
+  retries: 3
+  delay: 8
+
+- name: AuditD - Configure auditd Package [Debian/Ubuntu]
+  template:
+    src: "auditd.conf-{{ansible_distribution_major_version}}.j2"
+    dest: /etc/audit/auditd.conf
+    mode: "0640"
+  notify: 
+    - restart auditd
+
+- name: AuditD - Configure Syslog [Debian/Ubuntu < 22.04]
+  template:
+    src: plugins/syslog.conf.j2
+    dest: /etc/audisp/plugins.d/syslog.conf
+    mode: "0640"
+  notify: 
+    - restart auditd
+  when:
+    - ansible_distribution_major_version|int < 22
+    - auditd_syslog
+
+- name: AuditD - Configure Syslog [Debian/Ubuntu >= 22.04]
+  template:
+    src: plugins/syslog.conf.j2
+    dest: /etc/audit/plugins.d/syslog.conf
+    mode: "0640"
+  notify: 
+    - restart auditd
+  when:
+    - ansible_distribution_major_version|int >= 22
+    - auditd_syslog
+
+#- name: AuditD - Configure Rules [Debian/Ubuntu < 22.04]
+#  template:
+#    src: rules.d/audit.rules.j2
+#    dest: /etc/audit/audit.rules
+#    mode: "0640"
+#  notify: 
+#    - restart auditd
+#  when:
+#    - ansible_distribution_major_version|int < 22
+
+- name: AuditD - Configure Rules [Debian/Ubuntu >= 22.04]
+  template:
+    src: rules.d/audit.rules.j2
+    dest: /etc/audit/rules.d/audit.rules
+    mode: "0640"
+  notify: 
+    - restart auditd
+#  when:
+#    - ansible_distribution_major_version|int >= 22
+        

@@ -1,0 +1,12 @@
+---
+# defaults file for auditd
+auditd_packages_debian:
+  - auditd
+  - audispd-plugins 
+
+auditd_rules_local: rules.d/audit.rules
+auditd_rules_url: https://raw.githubusercontent.com/localh0rst/auditd/master/audit.rules
+auditd_rules_use_local: true
+
+auditd_syslog: false
+auditd_log_local: true

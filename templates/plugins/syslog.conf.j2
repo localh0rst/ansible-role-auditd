@@ -1,0 +1,6 @@
+active = {{ auditd_syslog | ternary("yes","no") }}
+direction = out
+path = {{ (ansible_os_family == "Debian" and ansible_distribution_major_version|int < 22) | ternary("builtin_syslog","/sbin/audisp-syslog") }}
+type = {{ (ansible_os_family == "Debian" and ansible_distribution_major_version|int < 22) | ternary("builtin","always") }}
+args = LOG_INFO
+format = string
